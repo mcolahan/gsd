@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "gsd"
+version = "0.0.1"
+description = "Get Shit Done!"
+authors = ["Martin Colahan"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+numpy = "^1.26.4"
+pandas = "^2.2.2"
+matplotlib = "^3.9.0"
+seaborn = "^0.13.2"
+pydantic = "^2.7.3"
+nicegui = "^1.4.26"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
