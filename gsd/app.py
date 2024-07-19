@@ -2,11 +2,7 @@ from nicegui import ui, context
 from gsd.ui.colors import *
 from gsd.utils.observer import ColorListener
 from gsd.model import Workspace
-from gsd.project_tracker.ui import ProjectTrackerUI
-from gsd.notes.ui import NotesUI
-from gsd.goals_ui import GoalsUI
-from gsd.calendar import CalendarUI
-from gsd.ui import AbstractToolUI
+from gsd.ui import AbstractToolUI, NotesUI, GoalsUI, CalendarUI, ProjectUI
 from gsd.ui.controls import iconbar_button
 from gsd.user_preferences import UserPreferences
 
@@ -21,7 +17,7 @@ class App(ColorListener):
         ui.add_head_html('<style>.q-textarea.flex-grow .q-field__control { height: 100% }</style>')
 
         self.tools: list[AbstractToolUI] = [
-            ProjectTrackerUI(self, self.workspace),
+            ProjectUI(self, self.workspace),
             NotesUI(self, self.workspace),
             GoalsUI(self, self.workspace),
             CalendarUI(self, self.workspace),
@@ -114,7 +110,7 @@ class App(ColorListener):
         self.main_grid = ui.grid(columns="auto 1fr", rows=1).classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}')
     
         with self.main_grid:
-            self.icon_bar = ui.column().classes('h-full').style(f'background: {self.theme.bg_secondary}')
+            self.icon_bar = ui.column().classes('h-full gap-0').style(f'background: {self.theme.bg_secondary}')
             self.render_iconbar()
             
             self.sidebar_splitter = ui.splitter().classes('h-full w-full m-0 p-0 b-1').style(f'background: {self.theme.bg_primary}')

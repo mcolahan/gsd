@@ -2,13 +2,12 @@ import pathlib
 
 from pydantic import BaseModel
 from .project import Project
-from .task import Task
+# from .task import Task
 
 
 class Workspace(BaseModel):
     name: str
     projects: list[Project] = []
-    misc_tasks: list[Task] = []
     notes_directory: str = ""
     open_notes: list[str] = []
     selected_notes_index: int = 0
