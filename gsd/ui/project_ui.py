@@ -81,10 +81,12 @@ class ProjectUI(AbstractToolUI):
 
     @ui.refreshable
     def get_project_view(self, active_view: str):
-        if active_view == 'All':
-            self.get_all_projects_view()
-        else:
-            pass
+        with ui.scroll_area().classes('w-full h-full m-0 p-0'):
+            with ui.column().classes('w-full h-full m-0 p-0'):
+                if active_view == 'All':
+                    self.get_all_projects_view()
+                else:
+                    pass
 
     def get_all_projects_view(self):
         with dnd.DnDRow(None).classes('w-full h-full m-4') as projects_row:

@@ -1,4 +1,4 @@
-from nicegui import ui, context
+from nicegui import ui, context, app
 from gsd.ui.colors import *
 from gsd.utils.observer import ColorListener
 from gsd.model import Workspace
@@ -109,17 +109,45 @@ class App(ColorListener):
     @ui.refreshable
     def create_layout(self):
         # self.header = ui.header()
+        with ui.column().classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}'):
 
-        self.main_grid = ui.grid(columns="auto 1fr", rows=1).classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}')
-    
-        with self.main_grid:
-            self.icon_bar = ui.column().classes('h-full gap-0').style(f'background: {self.theme.bg_secondary}')
-            self.render_iconbar()
+            with ui.row().classes('w-full h-[40px] m-0 p-0 pl-2 items-center gap-0').style(f'background: {self.theme.bg_secondary}'):
+                button_classes = 'h-full'
+                button_props = 'flat size=xs'
+                button_color = 'text-neutral-400'
             
-            self.sidebar_splitter = ui.splitter().classes('h-full w-full m-0 p-0 b-1').style(f'background: {self.theme.bg_primary}')
-            self.render_sidebar()
+                ui.label('🚀').classes('text-lg mx-2')
+                with ui.button().classes('h-full m-0 p-0 px-4').props('flat square size=md'):
+                    ui.label('File').classes(button_color + ' text-md p-0 m-0')
 
-            self.render_content()
+                ui.space()
+                ui.label('Get Sh!t Done').classes('font-semibold').style(f'color: {self.theme.text_primary}')
+
+
+
+                ui.space()
+                
+                button_classes = 'h-full m-0 p-0 px-4'
+                button_props = 'flat size=xs'
+                button_color = 'text-neutral-400'
+
+                with ui.button().classes(button_classes).props(button_props):
+                    ui.icon('horizontal_rule').classes(button_color)
+                with ui.button().classes(button_classes).props(button_props):
+                    ui.icon('crop_square').classes(button_color)
+                with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.close()):
+                    ui.icon('close').classes(button_color)
+
+            self.main_grid = ui.grid(columns="auto 1fr", rows=1).classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}')
+        
+            with self.main_grid:
+                self.icon_bar = ui.column().classes('h-full gap-0').style(f'background: {self.theme.bg_secondary}')
+                self.render_iconbar()
+                
+                self.sidebar_splitter = ui.splitter().classes('h-full w-full m-0 p-0 b-1').style(f'background: {self.theme.bg_primary}')
+                self.render_sidebar()
+
+                self.render_content()
 
     def render_iconbar(self):
         self.icon_bar.clear()
@@ -162,12 +190,25 @@ class App(ColorListener):
 
     def run(self):
         self.create_layout()
-        ui.run(favicon='🚀')
+        start_args = {
+            'title': 'Get Sh!t Done',
+            'resizable': True,
+            'width': 1500,
+            'height': 1000,
+
+        }
+        app.native.window_args = start_args
+        self.app = ui.run(favicon='🚀', native=True, frameless=True,)
+
+    def close(self):
+        self.workspace.save()
+        app.native.main_window.destroy()
+        quit()
 
 
 
 
 if __name__ in {"__main__", "__mp_main__"}:
-    app = App()
-    app.run()
+    my_app = App()
+    my_app.run()
     

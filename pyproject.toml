@@ -13,6 +13,7 @@ matplotlib = "^3.9.0"
 seaborn = "^0.13.2"
 pydantic = "^2.7.3"
 nicegui = "^1.4.26"
+pywebview = "^5.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"
