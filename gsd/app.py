@@ -30,6 +30,9 @@ class App(ColorListener):
         else:
             ColorManager.set_mode('light')
         self.theme = ColorManager.theme
+
+        ui.page_title('GSD')
+            
         
 
     def update_color_theme(self, theme):
@@ -159,7 +162,7 @@ class App(ColorListener):
 
     def run(self):
         self.create_layout()
-        ui.run()
+        ui.run(favicon='🚀')
 
 
 

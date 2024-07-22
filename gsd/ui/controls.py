@@ -31,3 +31,47 @@ def extended_input(placeholder="", binded_obj: Task = None, binded_key: str = No
         e_input.on('keydown.enter', lambda e: e.sender.task.save())
     
     return e_input
+
+def extended_checkbox(binded_obj: Task, binded_key: str) -> ui.checkbox:
+    e_checkbox = ui.checkbox().bind_value(binded_obj, binded_key)
+    if binded_obj and binded_key:
+        e_checkbox.task = binded_obj
+        e_checkbox.bind_value(binded_obj, binded_key)
+        e_checkbox.on_value_change(lambda e: e.sender.task.save())
+    
+    return e_checkbox
+
+def show_hidden_btns(e):
+    for btn in e.sender.hover_btns:
+        btn.set_visibility(True)
+
+def hide_hidden_btns(e):
+    for btn in e.sender.hover_btns:
+        btn.set_visibility(False)
+
+def run_method_if_exists(obj, method_name, parent_control=None):
+    if hasattr(obj, method_name):
+        getattr(obj, method_name)()
+
+    if parent_control:
+        parent_control.refresh()
+
+def task_iconbtn(icon: str, on_click: str, render_on_hover_over, task: Task, refreshable, is_hidden=True):
+    
+    btn = ui.button(icon=icon).props('flat round size=sm').classes('m-0 p-0')
+    btn.task = task
+    btn.click_method = on_click
+    btn.on_click(lambda e: run_method_if_exists(e.sender.task, e.sender.click_method, refreshable))
+
+    if not hasattr(render_on_hover_over, 'hover_btns'):
+        render_on_hover_over.hover_btns = []
+
+    render_on_hover_over.hover_btns.append(btn)
+
+    if is_hidden:
+        btn.set_visibility(False)
+        render_on_hover_over.on('mouseover', lambda e: show_hidden_btns(e))
+        render_on_hover_over.on('mouseleave', lambda e: hide_hidden_btns(e))
+        
+    return btn
+

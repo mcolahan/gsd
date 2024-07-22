@@ -40,6 +40,15 @@ class Task(TimedWork, Schedulable):
         for task in self.subtasks:
             events.extend(task.get_all_scheduled_events(from_time, to_time))
         return events
+    
+    def start_work(self):
+        super().start_work()
+        self.save()
+
+    def end_work(self):
+        super().end_work()
+        self.save()
+        
 
     
 
