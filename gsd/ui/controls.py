@@ -22,7 +22,7 @@ def iconbar_button(icon: str, on_click: Callable, is_active:bool=False):
     return btn
 
 def extended_input(placeholder="", binded_obj: Task = None, binded_key: str = None) -> ui.input:
-    e_input = ui.input(placeholder=placeholder).props('borderless dense')
+    e_input = ui.input(placeholder=placeholder).props('borderless dense w-full')
     
     if binded_obj and binded_key:
         e_input.task = binded_obj

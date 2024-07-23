@@ -6,7 +6,7 @@ from .project import Project
 
 
 class Workspace(BaseModel):
-    name: str
+    name: str = ""
     projects: list[Project] = []
     notes_directory: str = ""
     open_notes: list[str] = []
@@ -26,7 +26,10 @@ class Workspace(BaseModel):
 
         with open(path, 'w') as f:
             f.write(self.model_dump_json(indent=2))
-        
+
+    @staticmethod
+    def workspace_ext():
+        return ".json" 
     
     @staticmethod
     def load(file_path):

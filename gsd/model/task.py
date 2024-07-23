@@ -32,6 +32,11 @@ class Task(TimedWork, Schedulable):
     def _toggle_expansion(self):
         _expanded = not _expanded
 
+    def toggle_archived(self):
+        self.is_archived = not self.is_archived
+        self.save()
+        
+
     def get_all_scheduled_events(self, from_time: datetime, to_time: datetime):
         events = []
         for event in self.events:

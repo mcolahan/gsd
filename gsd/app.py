@@ -5,14 +5,25 @@ from gsd.model import Workspace
 from gsd.ui import AbstractToolUI, NotesUI, GoalsUI, CalendarUI, ProjectUI
 from gsd.ui.controls import iconbar_button
 from gsd.user_preferences import UserPreferences
+import webview
+import asyncio
+import tempfile
+import uuid
 
 
 class App(ColorListener):
     def __init__(self):
-        self.workspace_path = 'test_workspace.json'
-        self.workspace = Workspace.load(self.workspace_path)
         self.user_prefs = UserPreferences.load()
-
+        if len(self.user_prefs.recent_workspaces) > 0:
+            self.workspace_path = self.user_prefs.recent_workspaces[0]
+            self.workspace = Workspace.load(self.workspace_path)
+            self.is_temp_workspace = False
+        else:
+            self.workspace_path = tempfile.gettempdir() + '\\' + str(uuid.uuid4()) + Workspace.workspace_ext()
+            self.workspace = Workspace()
+            self.workspace.save(self.workspace_path)
+            self.is_temp_workspace = True
+                              
         context.client.content.classes('h-[100vh] w-[100vw] m-0 p-0 flex')#.style("height: 100%")
         ui.add_head_html('<style>.q-textarea.flex-grow .q-field__control { height: 100% }</style>')
 
@@ -111,7 +122,7 @@ class App(ColorListener):
         # self.header = ui.header()
         with ui.column().classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}'):
 
-            with ui.row().classes('w-full h-[40px] m-0 p-0 pl-2 items-center gap-0').style(f'background: {self.theme.bg_secondary}'):
+            with ui.row().classes('w-full h-[40px] m-0 p-0 pl-2 items-center gap-0 pywebview-drag-region').style(f'background: {self.theme.bg_secondary}'):
                 button_classes = 'h-full'
                 button_props = 'flat size=xs'
                 button_color = 'text-neutral-400'
@@ -119,11 +130,15 @@ class App(ColorListener):
                 ui.label('🚀').classes('text-lg mx-2')
                 with ui.button().classes('h-full m-0 p-0 px-4').props('flat square size=md'):
                     ui.label('File').classes(button_color + ' text-md p-0 m-0')
+                    with ui.menu().props('auto-close').classes('w-auto'):
+                        ui.menu_item('New', on_click=lambda e: self.on_new_workspace())
+                        ui.menu_item('Open', on_click=lambda e: self.on_open_workspace())
+                        ui.menu_item('Save As', on_click=lambda e: self.on_save_as())
+                        ui.separator()
+                        ui.menu_item('Close')
 
                 ui.space()
                 ui.label('Get Sh!t Done').classes('font-semibold').style(f'color: {self.theme.text_primary}')
-
-
 
                 ui.space()
                 
@@ -195,8 +210,9 @@ class App(ColorListener):
             'resizable': True,
             'width': 1500,
             'height': 1000,
-
+            'easy_drag': False,
         }
+
         app.native.window_args = start_args
         self.app = ui.run(favicon='🚀', native=True, frameless=True,)
 
@@ -204,6 +220,63 @@ class App(ColorListener):
         self.workspace.save()
         app.native.main_window.destroy()
         quit()
+
+
+    async def on_new_workspace(self):
+        result = await app.native.main_window.create_file_dialog(
+                    webview.SAVE_DIALOG,
+                    file_types=('JSON Files (*.json)', 'All files (*.*)'),
+                    save_filename='workspace.json')
+
+        if result is None or len(result) == 0:
+            return
+
+        workspace_file = result
+
+        workspace = Workspace()
+        workspace.save(workspace_file)
+        
+        self.workspace = workspace
+        self.workspace_path = workspace_file
+        self.user_prefs.add_recent_workspace(workspace_file)
+
+        self.refresh_app()
+
+    async def on_save_as(self):
+        result = await app.native.main_window.create_file_dialog(
+            webview.SAVE_DIALOG,
+            file_types=('JSON Files (*.json)', 'All files (*.*)'),
+            save_filename='workspace.json')
+        
+        if result is None or len(result) == 0:
+            return
+        workspace_file = result
+        self.workspace.save(workspace_file)
+        self.workspace_path = workspace_file
+        self.is_temp_workspace = False
+        self.user_prefs.add_recent_workspace(workspace_file)
+
+    async def on_open_workspace(self):
+        result = await app.native.main_window.create_file_dialog(
+            webview.OPEN_DIALOG,
+            file_types=('JSON Files (*.json)', 'All files (*.*)'),
+            allow_multiple=False)
+
+        if result is None or len(result) == 0:
+            return
+        
+        workspace_file = result[0]
+        workspace = Workspace.load(workspace_file)
+        self.workspace = workspace
+        self.workspace_path = workspace_file
+        self.refresh_app()
+        self.user_prefs.add_recent_workspace(workspace_file)
+        
+    def refresh_app(self):
+        for tool in self.tools:
+            tool.workspace = self.workspace
+        self.create_layout.refresh()
+        
 
 
 

@@ -12,6 +12,7 @@ class ProjectUI(AbstractToolUI):
         super().__init__(app)
         self.workspace = workspace
 
+
     @property
     def _projects(self):
         return self.workspace.projects
@@ -101,13 +102,20 @@ class ProjectUI(AbstractToolUI):
             with ui.row().classes('w-full'):
                 extended_input(placeholder='Project Name', binded_obj=project, binded_key='name').classes('font-bold text-lg')
                 ui.space()
+
+                btn = ui.button(icon='plus').props("flat").classes('m-0 p-0').on('click', lambda e: self.on_add_new_task(e.sender.project))
+                btn.pro
+
                 with ui.button(icon='more_vert').props("flat").classes('m-0 p-0'):
                     with ui.menu() as menu:
-                        ui.menu_item('Archive')
+                        mi = ui.menu_item('Archive', on_click=lambda e: e.sender.project.toggle_archived())
+                        mi.project = project
                         ui.separator()
-                        ui.menu_item('Delete')
+                        mi = ui.menu_item('Delete', on_click=lambda e: self.on_delete_project(e.sender.project))
+                        mi.project = project
 
-            with ui.column().classes('gap-0'):
+
+            with ui.column().classes('gap-0 w-full'):
                 for task in project.subtasks:
                     self.create_task(task)
 
@@ -118,6 +126,9 @@ class ProjectUI(AbstractToolUI):
             
             self.get_task_buttons(task, row)
 
+
+
+
     def add_new_project(self):
         self.workspace.add_project(Project())
         
@@ -125,6 +136,18 @@ class ProjectUI(AbstractToolUI):
         self.render_sidebar.refresh()
 
         ui.notify('New Project Created')
+
+    def on_delete_project(self, project: Project):
+        # todo: add confirmation dialog
+    
+        self.workspace.remove_project(project)
+        self.render_content.refresh()
+        self.render_sidebar.refresh()
+
+    def on_add_new_task(self, project: Project):
+        project.add_subtask(Task())
+        self.render_content.refresh()
+    
 
     @ui.refreshable
     def get_task_buttons(self, task: Task, parent):
