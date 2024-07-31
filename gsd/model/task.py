@@ -13,9 +13,11 @@ class Task(TimedWork, Schedulable):
     is_done: bool = False
     is_archived: bool = False
     subtasks: list[Task] = []
+    priority: int = 4
 
     _expanded = True
     _parent = None
+    
 
     def __repr__(self):
         return f"<Task: {self.name}, Done: {self.is_done}>"
@@ -35,7 +37,7 @@ class Task(TimedWork, Schedulable):
     def toggle_archived(self):
         self.is_archived = not self.is_archived
         self.save()
-        
+
 
     def get_all_scheduled_events(self, from_time: datetime, to_time: datetime):
         events = []
@@ -54,6 +56,10 @@ class Task(TimedWork, Schedulable):
         super().end_work()
         self.save()
         
+    def add_subtask(self, task: Task):
+        self.subtasks.append(task)
+        task._set_parent(self)
+        self.save()
 
     
 

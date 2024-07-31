@@ -3,10 +3,14 @@ from .task import Task
 
 class Project(Task):
     description: str = ""
+    render_archived_tasks: bool = False
 
     def __repr__(self):
         return f"<Project: {self.name}>"
         
+
+
+
     # def remove_task(self, task):
     #     if task in self.tasks:
     #         self.tasks.remove(task)

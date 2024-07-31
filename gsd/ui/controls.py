@@ -21,8 +21,10 @@ def iconbar_button(icon: str, on_click: Callable, is_active:bool=False):
 
     return btn
 
-def extended_input(placeholder="", binded_obj: Task = None, binded_key: str = None) -> ui.input:
-    e_input = ui.input(placeholder=placeholder).props('borderless dense w-full')
+def extended_input(placeholder="", binded_obj: Task = None, binded_key: str = None, text_color=None) -> ui.input:
+    e_input = ui.input(placeholder=placeholder).props('borderless dense w-full autogrow')
+    if text_color:
+        e_input.style(f'color: {text_color}')
     
     if binded_obj and binded_key:
         e_input.task = binded_obj
@@ -61,7 +63,10 @@ def task_iconbtn(icon: str, on_click: str, render_on_hover_over, task: Task, ref
     btn = ui.button(icon=icon).props('flat round size=sm').classes('m-0 p-0')
     btn.task = task
     btn.click_method = on_click
-    btn.on_click(lambda e: run_method_if_exists(e.sender.task, e.sender.click_method, refreshable))
+    if type(on_click) is str:
+        btn.on_click(lambda e: run_method_if_exists(e.sender.task, e.sender.click_method, refreshable))
+    elif callable(on_click):
+        btn.on_click(lambda e: on_click(e))
 
     if not hasattr(render_on_hover_over, 'hover_btns'):
         render_on_hover_over.hover_btns = []

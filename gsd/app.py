@@ -9,6 +9,7 @@ import webview
 import asyncio
 import tempfile
 import uuid
+import time
 
 
 class App(ColorListener):
@@ -120,7 +121,9 @@ class App(ColorListener):
     @ui.refreshable
     def create_layout(self):
         # self.header = ui.header()
-        with ui.column().classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}'):
+        # with ui.column().classes('h-full w-full m-0 p-[1px] gap-0').style(f'background: green').on('mousemove', lambda e: print('mousemove')):
+        # with ui.scroll_area().props('visible="False"').classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}'):
+        with ui.column().classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}; overflow: hidden'):
 
             with ui.row().classes('w-full h-[40px] m-0 p-0 pl-2 items-center gap-0 pywebview-drag-region').style(f'background: {self.theme.bg_secondary}'):
                 button_classes = 'h-full'
@@ -146,9 +149,9 @@ class App(ColorListener):
                 button_props = 'flat size=xs'
                 button_color = 'text-neutral-400'
 
-                with ui.button().classes(button_classes).props(button_props):
+                with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.minimize_window()):
                     ui.icon('horizontal_rule').classes(button_color)
-                with ui.button().classes(button_classes).props(button_props):
+                with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.toggle_fullscreen()):
                     ui.icon('crop_square').classes(button_color)
                 with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.close()):
                     ui.icon('close').classes(button_color)
@@ -203,7 +206,7 @@ class App(ColorListener):
         ui.notify("Opening an Existing Workspace")
 
 
-    def run(self):
+    def run(self, devmode=False):
         self.create_layout()
         start_args = {
             'title': 'Get Sh!t Done',
@@ -212,14 +215,18 @@ class App(ColorListener):
             'height': 1000,
             'easy_drag': False,
         }
-
+        self._devmode = devmode
         app.native.window_args = start_args
-        self.app = ui.run(favicon='🚀', native=True, frameless=True,)
+        self.app = ui.run(favicon='🚀', native=True, frameless=True, reload=devmode)
 
     def close(self):
         self.workspace.save()
-        app.native.main_window.destroy()
-        quit()
+        if self._devmode:
+            app.native.main_window.destroy()
+            quit()
+        else:
+            app.shutdown()
+
 
 
     async def on_new_workspace(self):
@@ -271,6 +278,14 @@ class App(ColorListener):
         self.workspace_path = workspace_file
         self.refresh_app()
         self.user_prefs.add_recent_workspace(workspace_file)
+
+    def toggle_fullscreen(self):
+        app.native.main_window.toggle_fullscreen()
+        # time.sleep(0.1)
+        # self.create_layout.refresh()
+
+    def minimize_window(self):
+        app.native.main_window.minimize()
         
     def refresh_app(self):
         for tool in self.tools:
@@ -278,10 +293,7 @@ class App(ColorListener):
         self.create_layout.refresh()
         
 
-
-
-
 if __name__ in {"__main__", "__mp_main__"}:
     my_app = App()
-    my_app.run()
+    my_app.run(devmode=True)
     
