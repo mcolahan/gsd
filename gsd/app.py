@@ -5,6 +5,7 @@ from gsd.model import Workspace
 from gsd.ui import AbstractToolUI, NotesUI, GoalsUI, CalendarUI, ProjectUI
 from gsd.ui.controls import iconbar_button
 from gsd.user_preferences import UserPreferences
+from gsd.assets.favicon import favicon_base64 as favicon
 import webview
 import asyncio
 import tempfile
@@ -45,8 +46,6 @@ class App(ColorListener):
 
         ui.page_title('GSD')
             
-        
-
     def update_color_theme(self, theme):
         self.theme = theme
         ui.colors(
@@ -126,11 +125,12 @@ class App(ColorListener):
         with ui.column().classes('h-full w-full m-0 p-0 gap-0').style(f'background: {self.theme.bg_primary}; overflow: hidden'):
 
             with ui.row().classes('w-full h-[40px] m-0 p-0 pl-2 items-center gap-0 pywebview-drag-region').style(f'background: {self.theme.bg_secondary}'):
-                button_classes = 'h-full'
+            
+                ui.image(favicon()).classes('bg-transparent w-[32px] h-[32px]')#.style('width: 30px; height: 32px;')
+
+                button_classes = 'h-full m-0 p-0 px-4'
                 button_props = 'flat size=xs'
                 button_color = 'text-neutral-400'
-            
-                ui.label('🚀').classes('text-lg mx-2')
                 with ui.button().classes('h-full m-0 p-0 px-4').props('flat square size=md'):
                     ui.label('File').classes(button_color + ' text-md p-0 m-0')
                     with ui.menu().props('auto-close').classes('w-auto'):
@@ -144,11 +144,7 @@ class App(ColorListener):
                 ui.label('Get Sh!t Done').classes('font-semibold').style(f'color: {self.theme.text_primary}')
 
                 ui.space()
-                
-                button_classes = 'h-full m-0 p-0 px-4'
-                button_props = 'flat size=xs'
-                button_color = 'text-neutral-400'
-
+        
                 with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.minimize_window()):
                     ui.icon('horizontal_rule').classes(button_color)
                 with ui.button().classes(button_classes).props(button_props).on_click(lambda e: self.toggle_fullscreen()):
@@ -215,9 +211,10 @@ class App(ColorListener):
             'height': 1000,
             'easy_drag': False,
         }
+       
         self._devmode = devmode
         app.native.window_args = start_args
-        self.app = ui.run(favicon='🚀', native=True, frameless=True, reload=devmode)
+        self.app = ui.run(favicon=favicon(), native=True, frameless=True, reload=devmode)
 
     def close(self):
         self.workspace.save()

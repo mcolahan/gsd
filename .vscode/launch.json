@@ -4,7 +4,13 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
         {
             "name": "Debug",
             "type": "debugpy",
@@ -18,11 +24,11 @@
             "module": "gsd.main"
         },
         {
-            "name": "Python Debugger: Current File",
+            "name": "Build",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
+            "module": "build",
+            "console":"integratedTerminal"
         }
     ]
 }
